@@ -137,6 +137,14 @@ it("递归列举返回相对路径，缺失目录为空", async () => {
   expect(await provider.listFiles("missing")).toEqual([]);
   expect(await provider.fileExists("missing")).toBe(false);
 });
+it("停用释放宿主传输，再次启用使用新绑定", async () => {
+  transport.dispose();
+  await expect(provider.fileExists("data")).rejects.toThrow("已停用");
+  expect(fetch).not.toHaveBeenCalled();
+  transport = bindWebDavTransport(fetch);
+  expect(await provider.uploadFile("data", new Uint8Array([1]))).toBe(true);
+});
+
 it("认证失败不变成空列表或不存在，上传失败正确返回false", async () => {
   denied = true;
   await expect(provider.listFiles()).rejects.toMatchObject({ status: 401 });

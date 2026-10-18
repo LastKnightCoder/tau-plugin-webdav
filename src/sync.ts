@@ -15,12 +15,14 @@ interface Config {
 // SDK随插件独立打包，此扩展只作用于本插件的客户端实例。
 export function bindWebDavTransport(fetch: typeof globalThis.fetch) {
   const patcher = getPatcher();
-  patcher.patch("fetch", (input, init) =>
-    fetch(input as RequestInfo, init as RequestInit),
-  );
+  let activeFetch: typeof fetch | undefined = fetch;
+  patcher.patch("fetch", (input, init) => {
+    if (!activeFetch) throw new Error("WebDAV插件已停用");
+    return activeFetch(input as RequestInfo, init as RequestInit);
+  });
   return {
     dispose: () => {
-      patcher.restore("fetch");
+      activeFetch = undefined;
     },
   };
 }
