@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { definePlugin, type PluginSettingsProps } from "@tau/plugins";
-import { Button, Input } from "@tau/ui";
+import { Button, Input, SettingRow } from "@tau/ui";
 import { createWebDavSyncProvider, bindWebDavTransport } from "./sync";
 
 declare const __PLUGIN_META__: { id: string; name: string; version: string };
@@ -19,61 +19,116 @@ function WebDavSettings({ syncConfig }: PluginSettingsProps) {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   if (!syncConfig) return <p>请在客户端的同步设置中配置此插件。</p>;
+
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    setError("");
+    setSaved(false);
+    try {
+      await syncConfig.save(config);
+      setSaved(true);
+    } catch (issue) {
+      setError(issue instanceof Error ? issue.message : "保存失败");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <form
-      className="flex flex-col gap-4"
-      onSubmit={async (event) => {
-        event.preventDefault();
-        if (saving) return;
-        setSaving(true);
-        setError("");
-        setSaved(false);
-        try {
-          await syncConfig.save(config);
-          setSaved(true);
-        } catch (issue) {
-          setError(issue instanceof Error ? issue.message : "保存失败");
-        } finally {
-          setSaving(false);
-        }
-      }}
-    >
-      {(
-        [
-          ["url", "服务器地址", "https://example.com/dav"],
-          ["username", "用户名", ""],
-          ["password", "密码", ""],
-          ["pathPrefix", "路径前缀", "/sync"],
-        ] as const
-      ).map(([key, label, placeholder]) => (
-        <label key={key} className="flex flex-col gap-1">
-          <span>{label}</span>
-          <Input
-            aria-label={label}
-            type={key === "password" ? "password" : "text"}
-            value={config[key]}
-            placeholder={placeholder}
-            required={key !== "pathPrefix"}
-            autoComplete="off"
-            spellCheck={false}
-            disabled={saving}
-            onChange={(event) => {
-              setSaved(false);
-              setConfig({ ...config, [key]: event.target.value });
-            }}
-          />
-        </label>
-      ))}
-      {error && <p role="alert">{error}</p>}
-      {saved && (
-        <p role="status">配置已保存，可以使用客户端的检查、上传和下载。</p>
+    <>
+      <SettingRow title="服务器地址" description="WebDAV 服务器 URL">
+        <Input
+          className="w-[260px]"
+          aria-label="服务器地址"
+          type="text"
+          value={config.url}
+          placeholder="https://example.com/dav"
+          required
+          autoComplete="off"
+          spellCheck={false}
+          disabled={saving}
+          onChange={(event) => {
+            setSaved(false);
+            setConfig({ ...config, url: event.target.value });
+          }}
+        />
+      </SettingRow>
+
+      <SettingRow title="用户名">
+        <Input
+          className="w-[260px]"
+          aria-label="用户名"
+          type="text"
+          value={config.username}
+          placeholder=""
+          required
+          autoComplete="off"
+          spellCheck={false}
+          disabled={saving}
+          onChange={(event) => {
+            setSaved(false);
+            setConfig({ ...config, username: event.target.value });
+          }}
+        />
+      </SettingRow>
+
+      <SettingRow title="密码">
+        <Input
+          className="w-[260px]"
+          aria-label="密码"
+          type="password"
+          value={config.password}
+          placeholder=""
+          required
+          autoComplete="off"
+          spellCheck={false}
+          disabled={saving}
+          onChange={(event) => {
+            setSaved(false);
+            setConfig({ ...config, password: event.target.value });
+          }}
+        />
+      </SettingRow>
+
+      <SettingRow title="路径前缀" description="可选，例如 /sync">
+        <Input
+          className="w-[260px]"
+          aria-label="路径前缀"
+          type="text"
+          value={config.pathPrefix}
+          placeholder="/sync"
+          autoComplete="off"
+          spellCheck={false}
+          disabled={saving}
+          onChange={(event) => {
+            setSaved(false);
+            setConfig({ ...config, pathPrefix: event.target.value });
+          }}
+        />
+      </SettingRow>
+
+      {error && (
+        <SettingRow title="">
+          <p role="alert" className="text-danger text-tau-body">
+            {error}
+          </p>
+        </SettingRow>
       )}
-      <div>
-        <Button type="submit" loading={saving}>
+      {saved && (
+        <SettingRow title="">
+          <p role="status" className="text-ink-2 text-tau-body">
+            配置已保存，可以使用客户端的检查、上传和下载。
+          </p>
+        </SettingRow>
+      )}
+
+      <SettingRow title="">
+        <Button onClick={handleSave} loading={saving} loadingText="保存中…">
           保存同步配置
         </Button>
-      </div>
-    </form>
+      </SettingRow>
+    </>
   );
 }
 
