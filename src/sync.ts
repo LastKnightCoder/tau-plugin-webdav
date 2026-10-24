@@ -1,9 +1,5 @@
 import { createClient, getPatcher, type WebDAVClient } from "webdav";
-import type {
-  JsonValue,
-  RemoteFileInfo,
-  SyncProvider,
-} from "@tau/plugins/sync";
+import type { JsonValue, RemoteFileInfo, SyncProvider } from "@tau/plugins/sync";
 
 interface Config {
   url: string;
@@ -16,9 +12,13 @@ interface Config {
 export function bindWebDavTransport(fetch: typeof globalThis.fetch) {
   const patcher = getPatcher();
   let activeFetch: typeof fetch | undefined = fetch;
-  patcher.patch("fetch", (input, init) => {
+  patcher.patch("fetch", async (input, init) => {
     if (!activeFetch) throw new Error("WebDAV插件已停用");
-    return activeFetch(input as RequestInfo, init as RequestInit);
+    const response = await activeFetch(input as RequestInfo, init as RequestInit);
+    const method = String((init as RequestInit | undefined)?.method ?? "GET").toUpperCase();
+    if (response.status >= 400 || ["PUT", "MKCOL"].includes(method))
+      await response.body?.cancel().catch(() => undefined);
+    return response;
   });
   return {
     dispose: () => {
@@ -32,8 +32,7 @@ function parse(value: JsonValue): Config {
     throw new Error("WebDAV配置无效");
   const text = (key: string) => {
     const field = value[key];
-    if (typeof field !== "string" || !field)
-      throw new Error("请填写WebDAV地址、用户名和密码");
+    if (typeof field !== "string" || !field) throw new Error("请填写WebDAV地址、用户名和密码");
     return field;
   };
   return {
@@ -58,11 +57,7 @@ class WebDavSyncProvider implements SyncProvider {
 
   private path(name: string) {
     return (
-      "/" +
-      [this.prefix, name.replace(/^\/+/, "")]
-        .filter(Boolean)
-        .join("/")
-        .replace(/\/+/g, "/")
+      "/" + [this.prefix, name.replace(/^\/+/, "")].filter(Boolean).join("/").replace(/\/+/g, "/")
     );
   }
 
@@ -76,15 +71,11 @@ class WebDavSyncProvider implements SyncProvider {
         // 保留原上传行为：目录创建失败后仍由PUT确认是否可写。
       }
     }
-    return this.client.putFileContents(
-      remotePath,
-      new Uint8Array(content).buffer,
-      {
-        contentLength: content.byteLength,
-        overwrite: !createOnly,
-        ...(createOnly ? { headers: { "If-None-Match": "*" } } : {}),
-      },
-    );
+    return this.client.putFileContents(remotePath, new Uint8Array(content).buffer, {
+      contentLength: content.byteLength,
+      overwrite: !createOnly,
+      ...(createOnly ? { headers: { "If-None-Match": "*" } } : {}),
+    });
   }
 
   async uploadFile(name: string, content: Uint8Array) {
@@ -107,11 +98,7 @@ class WebDavSyncProvider implements SyncProvider {
     const content = await this.client.getFileContents(this.path(name));
     if (content instanceof ArrayBuffer) return new Uint8Array(content);
     if (ArrayBuffer.isView(content))
-      return new Uint8Array(
-        content.buffer,
-        content.byteOffset,
-        content.byteLength,
-      );
+      return new Uint8Array(content.buffer, content.byteOffset, content.byteLength);
     if (typeof content === "string") return new TextEncoder().encode(content);
     throw new Error("WebDAV返回了不支持的文件内容");
   }
@@ -143,9 +130,7 @@ class WebDavSyncProvider implements SyncProvider {
               name: relativePath.split("/").pop() || item.basename,
               path: relativePath,
               size: Number(item.size || 0),
-              lastModified: item.lastmod
-                ? new Date(item.lastmod).getTime()
-                : undefined,
+              lastModified: item.lastmod ? new Date(item.lastmod).getTime() : undefined,
             });
           }
         }
