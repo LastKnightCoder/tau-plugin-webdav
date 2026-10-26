@@ -4,16 +4,16 @@
   "description": "使用 WebDAV 同步数据库或上传图片附件，账号按用途独立配置。",
   "categories": ["sync", "upload"],
   "keywords": ["WebDAV", "坚果云", "NAS", "备份"],
-  "version": "0.3.2",
+  "version": "0.3.3",
   "targets": {
     "desktop": {
-      "minAppVersion": "0.59.4"
+      "minAppVersion": "0.60.2"
     },
     "android": {
-      "minAppVersion": "0.2.4"
+      "minAppVersion": "0.2.9"
     },
     "ios": {
-      "minAppVersion": "0.2.4"
+      "minAppVersion": "0.2.9"
     }
   }
 }
