@@ -1,0 +1,12 @@
+{
+  "account.title": "账号",
+  "account.url": "服务地址",
+  "account.username": "用户名",
+  "account.password": "密码",
+  "account.passwordHint": "坚果云等服务请使用「应用密码」",
+  "location.title": "存储位置",
+  "location.path": "目录",
+  "location.publicHint": "返回的资源地址须能公开访问",
+  "location.publicBase": "公开地址前缀",
+  "location.publicBaseHint": "不填则用服务地址拼接"
+}

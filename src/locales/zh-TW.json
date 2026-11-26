@@ -1,0 +1,12 @@
+{
+  "account.title": "帳號",
+  "account.url": "服務網址",
+  "account.username": "使用者名稱",
+  "account.password": "密碼",
+  "account.passwordHint": "堅果雲等服務請使用「應用程式密碼」",
+  "location.title": "儲存位置",
+  "location.path": "目錄",
+  "location.publicHint": "回傳的資源網址須可公開存取",
+  "location.publicBase": "公開網址前綴",
+  "location.publicBaseHint": "留空則使用服務網址組合"
+}

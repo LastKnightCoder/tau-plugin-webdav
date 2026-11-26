@@ -1,0 +1,12 @@
+{
+  "account.title": "Account",
+  "account.url": "Service URL",
+  "account.username": "Username",
+  "account.password": "Password",
+  "account.passwordHint": "Use an app password for services such as Nutstore",
+  "location.title": "Storage location",
+  "location.path": "Directory",
+  "location.publicHint": "Returned resource URLs must be publicly accessible",
+  "location.publicBase": "Public URL prefix",
+  "location.publicBaseHint": "Leave blank to build URLs from the service URL"
+}
