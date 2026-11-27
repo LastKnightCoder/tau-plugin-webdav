@@ -4,16 +4,29 @@
   "description": "使用 WebDAV 同步数据库或上传图片附件，账号按用途独立配置。",
   "categories": ["sync", "upload"],
   "keywords": ["WebDAV", "坚果云", "NAS", "备份"],
-  "version": "0.3.4",
+  "locales": ["zh-CN", "zh-TW", "en-US"],
+  "i18n": {
+    "zh-TW": {
+      "name": "WebDAV 儲存",
+      "description": "使用 WebDAV 同步資料庫或上傳圖片附件，帳號依用途獨立設定。",
+      "keywords": ["WebDAV", "堅果雲", "NAS", "備份"]
+    },
+    "en-US": {
+      "name": "WebDAV Storage",
+      "description": "Sync your database or upload image attachments via WebDAV, with separate account settings for each.",
+      "keywords": ["WebDAV", "Nutstore", "NAS", "backup"]
+    }
+  },
+  "version": "0.3.5",
   "targets": {
     "desktop": {
-      "minAppVersion": "0.60.2"
+      "minAppVersion": "0.68.0"
     },
     "android": {
-      "minAppVersion": "0.2.9"
+      "minAppVersion": "0.6.0"
     },
     "ios": {
-      "minAppVersion": "0.2.9"
+      "minAppVersion": "0.6.0"
     }
   }
 }

@@ -15,7 +15,7 @@ git push origin "v$version"
 
 tag也可不带v前缀，版本必须与两个文件一致；预发布版本自动标记为Pre-release。Actions失败可重跑，已有Release会更新同名ZIP。已发布版本不要移动tag，代码修复应提高版本再发布。仓库需启用Actions并允许contents:write。Git远程统一使用SSH；该流程不自动提交插件中心审核或更新客户端固定产物。
 
-基于公开 Tau 模板，使用 SDK 0.10.0、Node.js 22及以上和pnpm 11.9.0。不依赖宿主源码或本地SDK快照。
+基于公开 Tau 模板，使用 SDK 0.63.0、Node.js 22及以上和pnpm 11.9.0。不依赖宿主源码或本地SDK快照。
 
 ```sh
 pnpm install --frozen-lockfile
